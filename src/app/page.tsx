@@ -4,6 +4,7 @@ import { CardContainer } from "@/components/CardContainer";
 import { FormModal } from "@/components/FormModal";
 import { Header } from "@/components/Header";
 import { Table } from "@/components/Table";
+import { useTransaction } from "@/hooks/transaction/useTransaction";
 import { ITransaction, TotalCard } from "@/types/transaction";
 import { useMemo, useState } from "react";
 
@@ -44,14 +45,17 @@ const transactions:ITransaction[] = [
 
 export default function Home() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [transactionData, setTransactionData] = useState(transactions);
+
+  const { data: transactionsData , isLoading } = useTransaction.FindAll();  
+  const { mutateAsync: createTransaction } = useTransaction.Create()
 
   const handleAddTransaction = (transaction: ITransaction) => {
-    setTransactionData( (prevState)=> [...prevState, transaction]);
+    createTransaction(transaction);
   }
 
   const calculaTotal = useMemo(() => {
-    const totals = transactionData.reduce<TotalCard>((acc, transaction) => {
+    const transactions = transactionsData ?? [];
+    const totals = transactions.reduce<TotalCard>((acc, transaction) => {
       if (transaction.type === "INCOME") {
         acc.income += transaction.price;
         acc.total += transaction.price;
@@ -63,14 +67,18 @@ export default function Home() {
     }, { total: 0, income: 0, outcome: 0 })
 
     return totals;
-  }, [transactionData]);
+  }, [transactionsData]);
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
   
   return (
     <div className="h-full min-h-screen">
       <Header handleOpenFormModal={() => setIsFormModalOpen(true)}/>
       <BodyContainer>
          <CardContainer totalValues={calculaTotal} />
-         <Table data={transactionData} />
+         <Table data={transactionsData ?? []} />
       </BodyContainer>
       {isFormModalOpen && <FormModal 
           closeModal={() => setIsFormModalOpen(false)} 

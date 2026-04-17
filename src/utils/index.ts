@@ -6,7 +6,7 @@ export const formatPrice = (price: number) => {
 }
 
 export const formatDate = (data: Date) => {
-    return data.toLocaleDateString("pt-BR", {
+    return new Date(data).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "long",
         year: "numeric"
