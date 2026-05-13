@@ -15,3 +15,11 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
   }],
 })
 export class AppModule {}
+
+import { UsersModule } from './modules/users/users.module';
+
+@Module({
+  imports: [TransactionsModule, UsersModule], // Adicionado aqui
+  // ...
+})
+export class AppModule {}
